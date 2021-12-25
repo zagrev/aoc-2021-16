@@ -142,6 +142,6 @@ public class BitReader extends Reader
     */
    public int readHex() throws IOException
    {
-      return convertHex(readBits(4));
+      return convertHex(readBits(8));
    }
 }
