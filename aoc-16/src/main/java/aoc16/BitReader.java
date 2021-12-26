@@ -40,7 +40,7 @@ public class BitReader extends Reader
     * @param hex
     * @return the binary value of the given hex pair
     */
-   public int convertHex(final int hex)
+   private int convertHex(final int hex)
    {
       int value = 0;
 
@@ -78,7 +78,7 @@ public class BitReader extends Reader
     *
     * @throws IOException
     */
-   public void fillBuffer(final int length) throws IOException
+   private void fillBuffer(final int length) throws IOException
    {
       while (bitsInBuffer < length)
       {
@@ -104,7 +104,7 @@ public class BitReader extends Reader
       int i;
       for (i = off; i < off + len; i++)
       {
-         cbuf[i] = (char) (readBits(8) & 0x0ff);
+         cbuf[i] = (char) convertHex(readBits(8));
       }
       return i;
    }
@@ -132,16 +132,5 @@ public class BitReader extends Reader
       bitsInBuffer -= length;
 
       return value;
-   }
-
-   /**
-    * read a single hex character. This reads 4 bits and converts the hex character into a binary value
-    *
-    * @return the binary nibble just read
-    * @throws IOException
-    */
-   public int readHex() throws IOException
-   {
-      return convertHex(readBits(8));
    }
 }

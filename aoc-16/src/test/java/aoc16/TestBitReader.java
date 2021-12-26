@@ -30,24 +30,30 @@ class TestBitReader
    {
       try (BitReader input = new BitReader(new StringReader(hex)))
       {
-         final int value = input.readBits(4);
-         System.out.format("value = %2d, %2X %n", value, value);
-         assertEquals(expected, value);
+         final int actual = input.readBits(4);
+         System.out.format("value = %2d, %2X %n", actual, actual);
+         assertEquals(expected, actual);
       }
    }
 
    /**
+    * @param hex
+    *           the input string in hex
     * @throws IOException
     */
    @ParameterizedTest
    @CsvSource(
-   { "1234, 1234", "AA, 2800" })
-   void testReadHex(final String hex, final int expected) throws IOException
+   { "0123456789ABCDEF", "AE" })
+   void testReadHex(final String hex) throws IOException
    {
       try (BitReader input = new BitReader(new StringReader(hex)))
       {
-         final int actual = input.readHex();
-         assertEquals(expected, actual);
+         for (int i = 0; i < hex.length(); i++)
+         {
+            final int expected = Integer.parseInt(hex.substring(i, i + 1), 16);
+            final int actual = input.readBits(4);
+            assertEquals(expected, actual);
+         }
       }
 
    }

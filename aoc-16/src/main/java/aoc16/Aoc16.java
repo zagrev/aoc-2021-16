@@ -13,6 +13,22 @@ import java.io.IOException;
  */
 public class Aoc16
 {
+   /**
+    * @param p
+    * @return the sum of this packet and all the sub-packets
+    */
+   public static int getVersionSum(final BitsPacket p)
+   {
+      int sum = 0;
+
+      sum += p.getVersion();
+      for (final BitsPacket sub : p.subPackets)
+      {
+         sum += getVersionSum(sub);
+      }
+
+      return sum;
+   }
 
    /**
     * @param args
@@ -25,33 +41,111 @@ public class Aoc16
       {
          final BitsPacket packet = readPacket(input);
          System.out.println("read packet: " + packet);
+         System.out.println("version sum = " + getVersionSum(packet));
       }
    }
 
    /**
     * @param input
-    * @return
+    *           the input to read
+    * @param p
+    *           the packet to update
+    * @return the number of bits read
+    * @throws IOException
+    */
+   private static int readLiteral(final BitReader input, final BitsPacket p) throws IOException
+   {
+      int numBitsRead = 0;
+      int literal = 0;
+      int next = 1;
+
+      while (next > 0)
+      {
+         next = input.readBits(1);
+         literal = literal << 4 | input.readBits(4);
+         numBitsRead += 5;
+      }
+      p.setLiteral(literal);
+
+      return numBitsRead;
+   }
+
+   /**
+    * @param input
+    * @return the fully read packet from the input
     * @throws IOException
     */
    public static BitsPacket readPacket(final BitReader input) throws IOException
    {
+      final int lengthType;
+      final int lengthBits;
+      int length;
+
       final BitsPacket packet = new BitsPacket();
+      int numBitsRead = 0;
 
       packet.setVersion(input.readBits(3));
       packet.setType(input.readBits(3));
+      numBitsRead += 6;
 
+      // literal packet
       if (packet.getType() == 4)
       {
-         int literal = 0;
-         int next = 1;
-         while (next > 0)
+         numBitsRead += readLiteral(input, packet);
+      }
+
+      // operator packet
+      else
+      {
+         lengthType = input.readBits(1);
+         numBitsRead += 1;
+         lengthBits = lengthType == 0 ? 15 : 11;
+         length = input.readBits(lengthBits);
+         numBitsRead += lengthBits;
+
+         // length type 0 means read 'length' bits
+         if (lengthType == 0)
          {
-            next = input.readBits(1);
-            literal = literal << 4 | input.readHex();
+            while (length > 0)
+            {
+               final BitsPacket subPacket = readPacket(input);
+               packet.subPackets.add(subPacket);
+
+               length -= subPacket.getBitlength();
+               numBitsRead += subPacket.getBitlength();
+            }
+
+            // just test that we are still on track
+            if (length < 0)
+            {
+               throw new IllegalArgumentException("Too many bits read: " + length);
+            }
+         }
+         else // length type id == 0
+         {
+            for (int i = 0; i < length; i++)
+            {
+               final BitsPacket newP = readPacket(input);
+
+               packet.subPackets.add(newP);
+               numBitsRead += newP.getBitlength();
+            }
          }
       }
 
+      packet.setBitlength(numBitsRead);
       return packet;
    }
 
+   public final int SUM = 0;
+   public final int PRODUCT = 1;
+   public final int MIN = 2;
+
+   public final int MAX = 3;
+
+   public final int GT = 5;
+
+   public final int LT = 6;
+
+   public final int EQUAL = 7;
 }
