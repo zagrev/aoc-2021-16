@@ -31,7 +31,6 @@ class TestBitReader
       try (BitReader input = new BitReader(new StringReader(hex)))
       {
          final int actual = input.readBits(4);
-         System.out.format("value = %2d, %2X %n", actual, actual);
          assertEquals(expected, actual);
       }
    }

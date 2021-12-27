@@ -42,6 +42,7 @@ public class Aoc16
          final BitsPacket packet = readPacket(input);
          System.out.println("read packet: " + packet);
          System.out.println("version sum = " + getVersionSum(packet));
+         System.out.println("value = " + packet.getValue());
       }
    }
 
@@ -56,7 +57,7 @@ public class Aoc16
    private static int readLiteral(final BitReader input, final BitsPacket p) throws IOException
    {
       int numBitsRead = 0;
-      int literal = 0;
+      long literal = 0;
       int next = 1;
 
       while (next > 0)
@@ -136,16 +137,4 @@ public class Aoc16
       packet.setBitlength(numBitsRead);
       return packet;
    }
-
-   public final int SUM = 0;
-   public final int PRODUCT = 1;
-   public final int MIN = 2;
-
-   public final int MAX = 3;
-
-   public final int GT = 5;
-
-   public final int LT = 6;
-
-   public final int EQUAL = 7;
 }

@@ -39,6 +39,26 @@ class BitsPacketTest
    }
 
    /**
+    * @param input
+    * @param expectedSum
+    * @throws IOException
+    */
+   @ParameterizedTest
+   @CsvSource(
+   { "8A004A801A8002F478, 16", "620080001611562C8802118E34, 12", "C0015000016115A2E0802F182340, 23",
+         "A0016C880162017C3686B18A3D4780, 31" })
+   void testLiterals(final String input, final int expectedSum) throws IOException
+   {
+      try (BitReader reader = new BitReader(new StringReader(input)))
+      {
+         final BitsPacket packet = Aoc16.readPacket(reader);
+         final int actualSum = Aoc16.getVersionSum(packet);
+
+         assertEquals(expectedSum, actualSum);
+      }
+   }
+
+   /**
     * @throws IOException
     */
    @Test
